@@ -7,8 +7,17 @@ app = Flask(__name__)
 # =========================================================
 # Load saved model and scaler
 # =========================================================
-log_model = joblib.load("logistic_model.pkl")
-scaler = joblib.load("scaler.pkl")
+try:
+    import os
+    model_path = os.path.join(os.path.dirname(__file__), "logistic_model.pkl")
+    scaler_path = os.path.join(os.path.dirname(__file__), "scaler.pkl")
+    
+    log_model = joblib.load(model_path)
+    scaler = joblib.load(scaler_path)
+    model_loaded = True
+except Exception as e:
+    print(f"Error loading model: {e}")
+    model_loaded = False
 
 # =========================================================
 # Home route
