@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Cardiovascular Disease Prediction</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes pulse-subtle {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.8; }
+    }
+    .fade-in {
+      animation: fadeIn 0.5s ease-out;
+    }
+    .status-indicator {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      margin-right: 6px;
+      animation: pulse-subtle 2s ease-in-out infinite;
+    }
+    .input-field:focus {
+      border-color: #2563eb;
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    }
+    .gradient-bg {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+    .card-shadow {
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    }
+  </style>
+</head>
+<body class="bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 min-h-screen py-12 px-4">
+
+  <div class="max-w-4xl mx-auto">
+    <!-- Header -->
+    <div class="text-center mb-8 fade-in">
+      <div class="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-red-500 to-pink-600 rounded-2xl mb-4 shadow-lg">
+        <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+        </svg>
+      </div>
+      <h1 class="text-4xl font-bold text-gray-900 mb-2">Cardiovascular Risk Assessment</h1>
+      <p class="text-gray-600 text-lg">Clinical Decision Support System</p>
+    </div>
+
+    <div class="bg-white rounded-2xl card-shadow p-8 fade-in">
+      <!-- Status Bar -->
+      <div class="flex items-center justify-between mb-8 pb-6 border-b border-gray-200">
+        <div>
+          <h2 class="text-lg font-semibold text-gray-900">Patient Data Entry</h2>
+          <p class="text-sm text-gray-500 mt-1">Complete all fields for risk calculation</p>
+        </div>
+        {% if model_loaded %}
+          <div class="flex items-center text-sm font-medium text-emerald-700 bg-emerald-50 px-4 py-2 rounded-lg border border-emerald-200">
+            <span class="status-indicator bg-emerald-500"></span>
+            Model Active
+          </div>
+        {% else %}
+          <div class="flex items-center text-sm font-medium text-red-700 bg-red-50 px-4 py-2 rounded-lg border border-red-200">
+            <span class="status-indicator bg-red-500"></span>
+            Model Unavailable
+          </div>
+        {% endif %}
+      </div>
+
+      <!-- Form -->
+      <form action="/predict" method="post" class="space-y-6">
+        <!-- Demographics Section -->
+        <div>
+          <h3 class="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-4">Demographics</h3>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Age</label>
+              <div class="relative">
+                <input name="Age" type="number" min="20" max="90" placeholder="Enter age" 
+                  class="input-field w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg text-gray-900 placeholder-gray-400 transition-all outline-none" required>
+                <span class="absolute right-4 top-1/2 -translate-y-1/2 text-sm text-gray-400">years</span>
+              </div>
+            </div>
+            
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Body Mass Index (BMI)</label>
+              <div class="relative">
+                <input name="BMI" type="number" step="0.1" min="15" max="45" placeholder="Enter BMI" 
+                  class="input-field w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg text-gray-900 placeholder-gray-400 transition-all outline-none" required>
+                <span class="absolute right-4 top-1/2 -translate-y-1/2 text-sm text-gray-400">kg/m²</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Clinical Measurements Section -->
+        <div>
+          <h3 class="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-4">Clinical Measurements</h3>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Blood Pressure</label>
+              <div class="relative">
+                <input name="Blood_Pressure" type="number" step="1" min="80" max="200" placeholder="Systolic pressure" 
+                  class="input-field w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg text-gray-900 placeholder-gray-400 transition-all outline-none" required>
+                <span class="absolute right-4 top-1/2 -translate-y-1/2 text-sm text-gray-400">mmHg</span>
+              </div>
+            </div>
+            
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Total Cholesterol</label>
+              <div class="relative">
+                <input name="Cholesterol" type="number" step="1" min="100" max="400" placeholder="Enter cholesterol" 
+                  class="input-field w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg text-gray-900 placeholder-gray-400 transition-all outline-none" required>
+                <span class="absolute right-4 top-1/2 -translate-y-1/2 text-sm text-gray-400">mg/dL</span>
+              </div>
+            </div>
+            
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Blood Glucose</label>
+              <div class="relative">
+                <input name="Glucose" type="number" step="1" min="50" max="300" placeholder="Fasting glucose" 
+                  class="input-field w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg text-gray-900 placeholder-gray-400 transition-all outline-none" required>
+                <span class="absolute right-4 top-1/2 -translate-y-1/2 text-sm text-gray-400">mg/dL</span>
+              </div>
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Smoking Status</label>
+              <select name="Smoking" class="input-field w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg text-gray-900 transition-all outline-none" required>
+                <option value="">Select status</option>
+                <option value="Yes">Current Smoker</option>
+                <option value="No">Non-Smoker</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Lifestyle Section -->
+        <div>
+          <h3 class="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-4">Lifestyle Factors</h3>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Physical Activity</label>
+            <div class="relative">
+              <input name="Physical_Activity" type="number" step="0.1" min="0" max="10" placeholder="Average daily exercise" 
+                class="input-field w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg text-gray-900 placeholder-gray-400 transition-all outline-none" required>
+              <span class="absolute right-4 top-1/2 -translate-y-1/2 text-sm text-gray-400">hours/day</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Submit Button -->
+        <div class="pt-4">
+          <button type="submit" class="w-full gradient-bg text-white py-4 px-6 rounded-lg font-semibold text-lg shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]">
+            Calculate Risk Assessment
+          </button>
+        </div>
+      </form>
+
+      <!-- Results Section -->
+      {% if prediction %}
+      <div class="mt-8 pt-8 border-t border-gray-200 fade-in">
+        <h3 class="text-lg font-semibold text-gray-900 mb-6">Assessment Results</h3>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+          <!-- Probability Score -->
+          <div class="bg-gradient-to-br from-blue-50 to-indigo-50 p-6 rounded-xl border border-blue-200">
+            <p class="text-sm font-medium text-gray-600 mb-2">CVD Probability</p>
+            <p class="text-4xl font-bold text-blue-900">{{ prediction }}</p>
+          </div>
+          
+          <!-- Risk Classification -->
+          <div class="p-6 rounded-xl border-2 {% if risk_level == 'High' %}bg-red-50 border-red-300{% elif risk_level == 'Medium' %}bg-amber-50 border-amber-300{% else %}bg-emerald-50 border-emerald-300{% endif %}">
+            <p class="text-sm font-medium text-gray-600 mb-2">Risk Classification</p>
+            <div class="flex items-center gap-3">
+              <div class="w-3 h-3 rounded-full {% if risk_level == 'High' %}bg-red-500{% elif risk_level == 'Medium' %}bg-amber-500{% else %}bg-emerald-500{% endif %}"></div>
+              <p class="text-2xl font-bold {% if risk_level == 'High' %}text-red-900{% elif risk_level == 'Medium' %}text-amber-900{% else %}text-emerald-900{% endif %}">
+                {{ risk_level }} Risk
+              </p>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Clinical Recommendation -->
+        {% if risk_level == 'High' %}
+        <div class="mt-5 bg-red-50 border-l-4 border-red-500 p-5 rounded-r-lg">
+          <div class="flex items-start">
+            <svg class="w-5 h-5 text-red-600 mt-0.5 mr-3" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+            </svg>
+            <div>
+              <p class="font-semibold text-red-900">Clinical Action Required</p>
+              <p class="text-sm text-red-800 mt-1">High risk assessment requires immediate consultation with a cardiovascular specialist for comprehensive evaluation and management plan.</p>
+            </div>
+          </div>
+        </div>
+        {% elif risk_level == 'Medium' %}
+        <div class="mt-5 bg-amber-50 border-l-4 border-amber-500 p-5 rounded-r-lg">
+          <div class="flex items-start">
+            <svg class="w-5 h-5 text-amber-600 mt-0.5 mr-3" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path>
+            </svg>
+            <div>
+              <p class="font-semibold text-amber-900">Monitoring Recommended</p>
+              <p class="text-sm text-amber-800 mt-1">Moderate risk indicates need for regular monitoring and lifestyle modification. Schedule follow-up with primary care physician.</p>
+            </div>
+          </div>
+        </div>
+        {% else %}
+        <div class="mt-5 bg-emerald-50 border-l-4 border-emerald-500 p-5 rounded-r-lg">
+          <div class="flex items-start">
+            <svg class="w-5 h-5 text-emerald-600 mt-0.5 mr-3" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+            </svg>
+            <div>
+              <p class="font-semibold text-emerald-900">Continue Preventive Care</p>
+              <p class="text-sm text-emerald-800 mt-1">Low risk profile. Maintain healthy lifestyle and continue routine preventive care as recommended by your healthcare provider.</p>
+            </div>
+          </div>
+        </div>
+        {% endif %}
+      </div>
+      {% endif %}
+
+      <!-- System Message -->
+      {% if message %}
+      <div class="mt-6 bg-blue-50 border border-blue-200 rounded-lg p-5">
+        <div class="flex items-start">
+          <svg class="w-5 h-5 text-blue-600 mt-0.5 mr-3" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path>
+          </svg>
+          <div>
+            <p class="font-semibold text-blue-900 text-sm">System Information</p>
+            <p class="text-sm text-blue-800 mt-1">{{ message }}</p>
+          </div>
+        </div>
+      </div>
+      {% endif %}
+    </div>
+
+    <!-- Footer -->
+    <div class="mt-8 text-center text-sm text-gray-600 fade-in">
+      <div class="bg-white rounded-lg p-6 card-shadow">
+        <p class="font-semibold text-gray-900 mb-3">System Configuration</p>
+        <p class="mb-2">This clinical decision support system requires trained model files. If the model status shows "Model Unavailable", execute <code class="bg-gray-100 px-2 py-1 rounded text-gray-800 font-mono text-xs">python train_model.py</code> to generate required dependencies.</p>
+        <div class="flex items-center justify-center gap-2 pt-3 border-t border-gray-200 mt-3 text-xs text-gray-500">
+          <span>Powered by Machine Learning</span>
+          <span>•</span>
+          <span>Flask Backend</span>
+          <span>•</span>
+          <span>Clinical AI</span>
+        </div>
+      </div>
+      <p class="mt-4 text-xs text-gray-500">For research and educational purposes. Not a substitute for professional medical advice.</p>
+    </div>
+  </div>
+
+</body>
+</html>
